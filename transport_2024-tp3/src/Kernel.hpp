@@ -1,25 +1,22 @@
 #ifndef TRANSPORT_KERNEL_HPP
 #define TRANSPORT_KERNEL_HPP
 
-#include "BusLine.hpp"
-#include "SubwayLine.hpp"
+#include "Line.hpp"
 #include "List.hpp"
+#include <memory>
 
 class Kernel {
 public:
   Kernel();
 
-  void add_bus_line(std::shared_ptr<BusLine> line);
-
-  void add_subway_line(std::shared_ptr<SubwayLine> line);
+  void add_line(std::shared_ptr<Line> line);
 
   void run(unsigned int begin, unsigned int end);
 
   ~Kernel() = default;
 
 private:
-  List<BusLine> bus_lines;
-  List<SubwayLine> subway_lines;
+  List<Line> lines; // Liste unique pour toutes les lignes
 };
 
 #endif //TRANSPORT_KERNEL_HPP

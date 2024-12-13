@@ -10,60 +10,61 @@ Line::Line(const std::string &name, unsigned int stop_number, unsigned int bus_n
 {
 }
 
-unsigned int Line::get_total_duration() const
-{
-    unsigned int total = 0;
-    unsigned int i;
-
-    for (i = 0; i < stop_number; ++i)
-    {
-        total += stops[i]->get_stop_duration();
-        if (i < stop_number - 1)
-        {
-            total += durations[i];
-        }
-    }
-    total += 2 * flip_duration;
-    return total;
+void Line::add_node(const std::string &name, float stop_duration, float duration) {
+  stops[stop_index] = std::make_shared<Node>(name, (int) (stop_duration * 60));
+  if (stop_index < get_stop_number() - 1) {
+    durations[stop_index] = (int) (duration * 60);
+  }
+  stop_index++;
 }
 
-List<std::shared_ptr<Transport>> Line::get_transport(unsigned int time, State state)
-{
-    List<std::shared_ptr<Transport>> stopped_transport;
-    Iterator<std::shared_ptr<Transport>> it(transport, true);
+List<Transport> Line::get_transport(unsigned int time, State state) {
+  List<Transport> stopped_bus;
+  
+  Iterator<Transport> it(transport, true);
 
-    while (it.has_more())
-    {
-
-        // Ajout de get() pour accéder à l'objet pointé par le shared_ptr
-        if (it.current()->get()->get_state() == state and time == it.current()->get()->get_last_time())
-        {
-            stopped_transport.add_first(it.current());
-        }
-        it.next();
+  while (it.has_more()) {
+    if (it.current()->get_state() == state and time == it.current()->get_last_time()) {
+      stopped_bus.add_first(it.current());
     }
-    return stopped_transport;
+    it.next();
+  }
+  return stopped_bus;
 }
 
-unsigned int Line::run(unsigned int time)
-{
-    unsigned int min_next_time = INT_MAX;
-    Iterator<std::shared_ptr<Transport>> it(transport, true);
-    while (it.has_more())
-    {
-        if (it.current()->get()->get_next_time() == time)
-        {
-            it.current()->get()->run(time);
 
-            //      std::cout << time << " => ";
-            //      it.current()->display();
-            //      std::cout << std::endl;
-        }
-        if (it.current()->get()->get_next_time() < min_next_time)
-        {
-            min_next_time = it.current()->get()->get_next_time();
-        }
-        it.next();
+unsigned int Line::get_total_duration() const {
+  unsigned int total = 0;
+  unsigned int i;
+
+  for (i = 0; i < get_stop_number(); ++i) {
+    total += stops[i]->get_stop_duration();
+    if (i < get_stop_number() - 1) {
+      total += durations[i];
     }
-    return min_next_time;
+  }
+  total += 2 * get_flip_duration();
+  return total;
 }
+
+unsigned int Line::run(unsigned int time) {
+  unsigned int min_next_time = INT_MAX;
+  Iterator<Transport> it(transport, true);
+    std::cout << "tran: " << transport.size() << std::endl;
+  while (it.has_more()) {
+    if (it.current()->get_next_time() == time) {
+      it.current()->run(time);
+
+      std::cout << time << " => ";
+//      it.current()->display();
+//      std::cout << std::endl;
+
+    }
+    if (it.current()->get_next_time() < min_next_time) {
+      min_next_time = it.current()->get_next_time();
+    }
+    it.next();
+  }
+  return min_next_time;
+}
+

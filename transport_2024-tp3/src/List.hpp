@@ -58,7 +58,7 @@ public:
 
     while (current != _last) {
       ++size;
-      current = current->next;
+      current = current->next();
     }
     return size;
   }

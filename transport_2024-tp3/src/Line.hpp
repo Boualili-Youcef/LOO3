@@ -23,13 +23,18 @@ public:
   unsigned int get_stop_index() const { return stop_index; }
   unsigned int get_stop_number() const { return stops.size(); }
   unsigned int get_bus_number() const { return bus_number; }
+
+  List<Transport> get_transport(unsigned int time, State state);
   unsigned int get_total_duration() const;
 
-  virtual void add_stop(const std::string &name, float stop_duration, float duration = 0) = 0;
-  List<std::shared_ptr<Transport>> get_transport(unsigned int time, State state);
-  virtual unsigned int run(unsigned int time) = 0;
+  void add_node(const std::string &name, float stop_duration, float duration = 0);
 
+  unsigned int run(unsigned int time);
   virtual ~Line() = default;
+
+  // Add Transport
+protected:
+  void add_transport(const std::shared_ptr<Transport> &transport) { this->transport.add_first(transport); }
 
 private:
   std::string name;
@@ -39,7 +44,7 @@ private:
   unsigned int bus_number;
   unsigned int flip_duration;
   unsigned int stop_index;
-  List<std::shared_ptr<Transport>> transport;
+  List<Transport> transport;
 };
 
 #endif // TRANSPORT_LINE_HPP
